@@ -377,47 +377,130 @@ docker run -d \
         </section>
 
         <section id="api">
-            <h2>6. API Reference Guide</h2>
+            <h2>6. Complete API Reference</h2>
             <div class="alert alert-info">
-                <strong>Authentication Headers Required:</strong><br>
+                <strong>Authentication Headers Required (except /health):</strong><br>
                 <code>X-API-Key: &lt;your-api-key&gt;</code><br>
                 <code>Content-Type: application/json</code>
             </div>
 
-            <h3>Endpoints</h3>
+            <h3>📋 All Available Endpoints</h3>
             
             <h4>1. Health Check</h4>
-            <p><span class="method">GET</span> <code>/health</code> &mdash; Response: 200 OK</p>
+            <p><span class="method">GET</span> <code>/health</code> &mdash; Does not require authentication</p>
+            <pre><code>curl http://localhost:8080/health
+# Response: 200 OK</code></pre>
 
-            <h4>2. Create a Group</h4>
-            <p><span class="method">POST</span> <code>/groups</code></p>
+            <h4>2. API Key Management</h4>
+            <p><span class="method">DELETE</span> <code>/keys/{key}</code> &mdash; Deletes an API key (cannot delete the last one)</p>
+            <pre><code>curl -X DELETE http://localhost:8080/keys/sk_old_key_to_delete \
+  -H "X-API-Key: YOUR_ADMIN_API_KEY"</code></pre>
+
+            <h4>3. Group Management</h4>
+            <p><span class="method">POST</span> <code>/groups</code> &mdash; Create a new group</p>
             <p>Use cases: Organize users by team, environment, or application.</p>
-            <pre><code>{ "group": "engineering" }</code></pre>
+            <pre><code>curl -X POST http://localhost:8080/groups \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"group":"engineering"}'</code></pre>
 
-            <h4>3. Add User to Group</h4>
-            <p><span class="method">POST</span> <code>/groups/{group}/users</code></p>
-            <pre><code>{ "user": "alice" }</code></pre>
+            <p><span class="method">DELETE</span> <code>/groups/{group}</code> &mdash; Delete a group and all its users</p>
+            <pre><code>curl -X DELETE http://localhost:8080/groups/engineering \
+  -H "X-API-Key: YOUR_API_KEY"</code></pre>
 
-            <h4>4. Store User Fingerprint</h4>
-            <p><span class="method">POST</span> <code>/groups/{group}/users/{user}/fp</code></p>
-            <p>Call this at user login or device registration.</p>
-            <pre><code>{ "fingerprint": { ... fingerprint data ... } }</code></pre>
+            <h4>4. User Management</h4>
+            <p><span class="method">POST</span> <code>/groups/{group}/users</code> &mdash; Add user to group</p>
+            <pre><code>curl -X POST http://localhost:8080/groups/engineering/users \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"user":"alice"}'</code></pre>
 
-            <h4>5. Compare Fingerprint (Session Validation)</h4>
-            <p><span class="method">POST</span> <code>/compare</code></p>
-            <p>Call this on every page load or sensitive action.</p>
-            <pre><code>{
-  "group": "engineering",
-  "user": "alice",
-  "fingerprint": { ... current fingerprint ... },
-  "strict": "medium"
-}</code></pre>
+            <p><span class="method">DELETE</span> <code>/groups/{group}/users/{user}</code> &mdash; Remove user from group</p>
+            <pre><code>curl -X DELETE http://localhost:8080/groups/engineering/users/alice \
+  -H "X-API-Key: YOUR_API_KEY"</code></pre>
 
-            <h4>Strictness Levels</h4>
+            <h4>5. Fingerprint Storage</h4>
+            <p><span class="method">POST</span> <code>/groups/{group}/users/{user}/fp</code> &mdash; Store a device fingerprint</p>
+            <p>Call this at user login or when registering a new device.</p>
+            <pre><code>curl -X POST http://localhost:8080/groups/engineering/users/alice/fp \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fingerprint": {
+      "metadata": "combined",
+      "browser_family": "Chrome",
+      "os_family": "Windows",
+      "canvas_pixel_hash": "abc123",
+      "canvas_text_hash": "def456",
+      "webgl_render_hash": "ghi789",
+      "webgl_vendor_generalized": "Intel"
+    }
+  }'</code></pre>
+
+            <p><span class="method">DELETE</span> <code>/groups/{group}/users/{user}/fp/{index}</code> &mdash; Delete fingerprint by index (0-based)</p>
+            <pre><code>curl -X DELETE http://localhost:8080/groups/engineering/users/alice/fp/0 \
+  -H "X-API-Key: YOUR_API_KEY"</code></pre>
+
+            <h4>6. Session Validation (Compare)</h4>
+            <p><span class="method">POST</span> <code>/compare</code> &mdash; Validate current session against stored fingerprints</p>
+            <p>Call this on every page load or before sensitive actions.</p>
+            <pre><code>curl -X POST http://localhost:8080/compare \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "group": "engineering",
+    "user": "alice",
+    "fingerprint": {
+      "metadata": "combined",
+      "browser_family": "Chrome",
+      "os_family": "Windows",
+      "canvas_pixel_hash": "abc123",
+      "canvas_text_hash": "def456",
+      "webgl_render_hash": "ghi789",
+      "webgl_vendor_generalized": "Intel"
+    }
+  }'
+
+# Response examples:
+# Match found: {"verdict": true}
+# No match: {"verdict": false}
+# Error: {"verdict": "error", "message": "..."}
+</code></pre>
+
+            <h4>7. View All Data</h4>
+            <p><span class="method">GET</span> <code>/dataset</code> &mdash; Retrieve entire dataset (groups, users, fingerprints)</p>
+            <pre><code>curl http://localhost:8080/dataset \
+  -H "X-API-Key: YOUR_API_KEY"</code></pre>
+
+            <h3>📊 Compare Response Verdicts</h3>
+            <table>
+                <tr>
+                    <th>Verdict</th>
+                    <th>Meaning</th>
+                    <th>Action</th>
+                </tr>
+                <tr>
+                    <td><code>true</code></td>
+                    <td>Fingerprint matches at least one stored fingerprint</td>
+                    <td>Allow session to continue</td>
+                </tr>
+                <tr>
+                    <td><code>false</code></td>
+                    <td>No matching fingerprint found</td>
+                    <td>Flag as suspicious, require re-authentication</td>
+                </tr>
+                <tr>
+                    <td><code>"error"</code></td>
+                    <td>Invalid metadata, missing fields, or comparison issue</td>
+                    <td>Check fingerprint structure and try again</td>
+                </tr>
+            </table>
+
+            <h3>🎯 Strictness Levels (Optional Parameter)</h3>
             <ul>
-                <li><code>low</code>: Forgiving. Accepts small changes. Best for mobile/public WiFi.</li>
+                <li><code>low</code>: Forgiving. Accepts small changes. Best for mobile/public WiFi users.</li>
                 <li><code>medium</code> (Default): Standard security. Flags meaningful anomalies.</li>
-                <li><code>high</code>: Strict. Flags ANY environment deviations. Best for Admin panels.</li>
+                <li><code>high</code>: Strict. Flags ANY environment deviations. Best for admin panels.</li>
             </ul>
         </section>
 
