@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SessionHawk - Complete Setup & Deployment Guide</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --text-color: #334155;
+            --heading-color: #0f172a;
+            --bg-color: #f8fafc;
+            --sidebar-bg: #ffffff;
+            --code-bg: #1e293b;
+            --border-color: #e2e8f0;
+            --alert-bg: #fff1f2;
+            --alert-border: #e11d48;
+            --success-bg: #f0fdf4;
+            --success-border: #16a34a;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: var(--bg-color);
+            margin: 0;
+            display: flex;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--heading-color);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo span {
+            color: var(--primary-color);
+        }
+
+        .nav-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-size: 0.9rem;
+            display: block;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background: #eff6ff;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 3rem 4rem;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        h1, h2, h3, h4 {
+            color: var(--heading-color);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        h1 { font-size: 2.5rem; margin-top: 0; border-bottom: 2px solid var(--border-color); padding-bottom: 1rem; }
+        h2 { font-size: 1.8rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-top: 3rem; }
+        h3 { font-size: 1.4rem; }
+
+        p, li { margin-bottom: 1rem; }
+
+        /* Code Blocks */
+        pre {
+            background: var(--code-bg);
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: "Menlo", "Monaco", "Courier New", monospace;
+            font-size: 0.9rem;
+            margin: 1.5rem 0;
+            border: 1px solid #334155;
+        }
+
+        code {
+            font-family: "Menlo", "Monaco", "Courier New", monospace;
+        }
+        
+        p code, li code {
+            background: #e2e8f0;
+            color: #0f172a;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border-left: 4px solid;
+        }
+
+        .alert-danger {
+            background: var(--alert-bg);
+            border-color: var(--alert-border);
+            color: #881337;
+        }
+
+        .alert-success {
+            background: var(--success-bg);
+            border-color: var(--success-border);
+            color: #14532d;
+        }
+
+        .alert-info {
+            background: #eff6ff;
+            border-color: var(--primary-color);
+            color: #1e3a8a;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: #f1f5f9;
+            font-weight: 600;
+        }
+
+        /* Lists */
+        ul { padding-left: 1.5rem; }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: relative; border-right: none; border-bottom: 1px solid var(--border-color); }
+            .main-content { margin-left: 0; padding: 2rem; }
+        }
+        
+        /* Utility */
+        .badge {
+            display: inline-block;
+            padding: 0.25em 0.6em;
+            font-size: 75%;
+            font-weight: 700;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.25rem;
+            color: #fff;
+            background-color: var(--primary-color);
+            margin-left: 0.5rem;
+        }
+        
+        .method {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <div class="logo">
+            🦅 SessionHawk Documentation</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#intro">1. Introduction</a></li>
+            <li><a href="#deployment">2. Docker Deployment</a></li>
+            <li><a href="#persistence">3. Data Persistence</a></li>
+            <li><a href="#update">4. Updating</a></li>
+            <li><a href="#testing">5. Testing Deployment</a></li>
+            <li><a href="#api">6. API Reference</a></li>
+            <li><a href="#npm">7. Installing NPM Package</a></li>
+            <li><a href="#fingerprints">8. Browser Fingerprints</a></li>
+            <li><a href="#integration">9. Website Integration</a></li>
+            <li><a href="#best-practices">10. Best Practices</a></li>
+            <li><a href="#cheatsheet">11. Cheat Sheet</a></li>
+            <li><a href="#troubleshooting">12. Troubleshooting</a></li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <h1>Complete Setup & Deployment Guide</h1>
+        <p class="lead">This guide covers everything you need to deploy, update, and integrate SessionHawk for real-world session hijacking protection.</p>
+
+        <section id="intro">
+            <h2>1. What is SessionHawk?</h2>
+            <p>SessionHawk is a self-hosted session security service designed to protect your users from advanced threats. It operates by validating user sessions against a continuously evolving device profile.</p>
+            
+            
+            
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Detects session hijacking</strong> attempts in real-time.</li>
+                <li><strong>Identifies stolen authentication cookies</strong> before they can be exploited.</li>
+                <li><strong>Tracks device/browser fingerprint changes</strong> with high precision.</li>
+                <li><strong>Flags suspicious network shifts</strong> (VPN, Tor, Proxy detection).</li>
+            </ul>
+            
+            <div class="alert alert-info">
+                <strong>Data Storage:</strong> All data (fingerprints, users, groups, API keys) is stored inside the container at <code>/app/data</code>. You <strong>MUST</strong> mount this to a persistent volume on your host machine.
+            </div>
+        </section>
+
+        <section id="deployment">
+            <h2>2. Initial Docker Deployment</h2>
+            
+            <h3>Step 1: Pull the Latest Image</h3>
+            <pre><code>docker pull sessionhawk/sessionhawk:latest</code></pre>
+
+            <h3>Step 2: Run the Container</h3>
+            <p>Run the container in detached mode with persistent storage enabled.</p>
+            <pre><code>docker run -d \
+  --name sessionhawk_container \
+  -p 8080:8080 \
+  -v $PWD/data:/app/data \
+  sessionhawk/sessionhawk:latest</code></pre>
+
+            <h4>Command Explanation:</h4>
+            <table>
+                <tr>
+                    <th>Flag</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><code>-d</code></td>
+                    <td>Run in background (detached mode).</td>
+                </tr>
+                <tr>
+                    <td><code>--name</code></td>
+                    <td>Name your container "sessionhawk_container".</td>
+                </tr>
+                <tr>
+                    <td><code>-p 8080:8080</code></td>
+                    <td>Map port 8080 (host) to 8080 (container).</td>
+                </tr>
+                <tr>
+                    <td><code>-v $PWD/data:/app/data</code></td>
+                    <td>Mount local <code>./data</code> directory to persist data.</td>
+                </tr>
+            </table>
+
+            <h3>Step 3: View API Keys</h3>
+            <p>View the logs to retrieve your auto-generated API keys.</p>
+            <pre><code>docker logs -f sessionhawk_container</code></pre>
+            <p>Look for output like: <code>✓ API Key 1: sk_abc123...</code>. Save these securely.</p>
+
+            <h3>Step 4: Access the Service</h3>
+            <p>Your instance is running at <code>http://your-server-ip:8080</code>. Check the health:</p>
+            <pre><code>curl http://localhost:8080/health
+# Expected response: 200 OK</code></pre>
+        </section>
+
+        <section id="persistence">
+            <h2>3. Understanding Data Persistence</h2>
+            
+            
+
+            <div class="alert alert-danger">
+                <strong>🔒 CRITICAL: Your Data Location</strong><br>
+                When you run the container with <code>-v $PWD/data:/app/data</code>, all SessionHawk data is stored on your HOST at <code>./data/</code>.
+            </div>
+
+            <p>This directory contains:</p>
+            <ul>
+                <li>All user fingerprints</li>
+                <li>All groups and users</li>
+                <li>All API keys</li>
+                <li>Session history & configuration</li>
+            </ul>
+
+            <h3>🚨 Important Rules</h3>
+            <ol>
+                <li><strong>NEVER</strong> delete the <code>./data/</code> directory on your host.</li>
+                <li><strong>ALWAYS</strong> use the same volume mount when updating.</li>
+                <li>Removing a container does <strong>NOT</strong> delete the volume.</li>
+                <li>Your data survives container updates, stops, and removals.</li>
+            </ol>
+        </section>
+
+        <section id="update">
+            <h2>4. How to Update Without Losing Data</h2>
+            <p>When a new version is released, follow these steps <strong>EXACTLY</strong> to ensure zero data loss.</p>
+
+            <h3>The Safe Update Procedure</h3>
+            <ol>
+                <li><strong>Stop the container:</strong> <code>docker stop sessionhawk_container</code></li>
+                <li><strong>Remove the shell:</strong> <code>docker rm sessionhawk_container</code> (Your data in <code>./data/</code> remains safe).</li>
+                <li><strong>Pull latest image:</strong> <code>docker pull sessionhawk/sessionhawk:latest</code></li>
+                <li><strong>Start new container:</strong> (Ensure you use the same volume mount)</li>
+            </ol>
+            
+            <pre><code>docker run -d \
+  --name sessionhawk_container \
+  -p 8080:8080 \
+  -v $PWD/data:/app/data \
+  sessionhawk/sessionhawk:latest</code></pre>
+
+            <h3>🔄 One-Command Update (Copy-Paste Ready)</h3>
+            <pre><code>docker stop sessionhawk_container && \
+docker rm sessionhawk_container && \
+docker pull sessionhawk/sessionhawk:latest && \
+docker run -d \
+  --name sessionhawk_container \
+  -p 8080:8080 \
+  -v $PWD/data:/app/data \
+  sessionhawk/sessionhawk:latest</code></pre>
+        </section>
+
+        <section id="testing">
+            <h2>5. Testing Your Deployment</h2>
+            <p>Verify your container is fully operational.</p>
+            
+            <ul>
+                <li><strong>Check Status:</strong> <code>docker ps</code></li>
+                <li><strong>View Live Logs:</strong> <code>docker logs -f sessionhawk_container</code></li>
+                <li><strong>Health Check:</strong> <code>curl http://localhost:8080/health</code></li>
+            </ul>
+
+            <h3>Test API with Your Key</h3>
+            <pre><code>curl -X POST http://localhost:8080/groups \
+  -H "X-API-Key: <your-api-key>" \
+  -H "Content-Type: application/json" \
+  -d '{"group": "test"}'
+# Expected: Success response</code></pre>
+        </section>
+
+        <section id="api">
+            <h2>6. API Reference Guide</h2>
+            <div class="alert alert-info">
+                <strong>Authentication Headers Required:</strong><br>
+                <code>X-API-Key: &lt;your-api-key&gt;</code><br>
+                <code>Content-Type: application/json</code>
+            </div>
+
+            <h3>Endpoints</h3>
+            
+            <h4>1. Health Check</h4>
+            <p><span class="method">GET</span> <code>/health</code> &mdash; Response: 200 OK</p>
+
+            <h4>2. Create a Group</h4>
+            <p><span class="method">POST</span> <code>/groups</code></p>
+            <p>Use cases: Organize users by team, environment, or application.</p>
+            <pre><code>{ "group": "engineering" }</code></pre>
+
+            <h4>3. Add User to Group</h4>
+            <p><span class="method">POST</span> <code>/groups/{group}/users</code></p>
+            <pre><code>{ "user": "alice" }</code></pre>
+
+            <h4>4. Store User Fingerprint</h4>
+            <p><span class="method">POST</span> <code>/groups/{group}/users/{user}/fp</code></p>
+            <p>Call this at user login or device registration.</p>
+            <pre><code>{ "fingerprint": { ... fingerprint data ... } }</code></pre>
+
+            <h4>5. Compare Fingerprint (Session Validation)</h4>
+            <p><span class="method">POST</span> <code>/compare</code></p>
+            <p>Call this on every page load or sensitive action.</p>
+            <pre><code>{
+  "group": "engineering",
+  "user": "alice",
+  "fingerprint": { ... current fingerprint ... },
+  "strict": "medium"
+}</code></pre>
+
+            <h4>Strictness Levels</h4>
+            <ul>
+                <li><code>low</code>: Forgiving. Accepts small changes. Best for mobile/public WiFi.</li>
+                <li><code>medium</code> (Default): Standard security. Flags meaningful anomalies.</li>
+                <li><code>high</code>: Strict. Flags ANY environment deviations. Best for Admin panels.</li>
+            </ul>
+        </section>
+
+        <section id="npm">
+            <h2>7. Installing the NPM Package</h2>
+            <p>For browser-side integration, install the official client library.</p>
+            
+            <pre><code>npm install sessionhawk
+# OR
+yarn add sessionhawk
+# OR
+pnpm add sessionhawk</code></pre>
+
+            <p><strong>Import in your application:</strong></p>
+            <pre><code>// ES6 Modules
+import { captureFingerprint } from 'sessionhawk';
+
+// CommonJS
+const { captureFingerprint } = require('sessionhawk');</code></pre>
+        </section>
+
+        <section id="fingerprints">
+            <h2>8. Capturing Browser Fingerprints</h2>
+            
+            <h3>Basic Usage</h3>
+            <pre><code>import { captureFingerprint } from 'sessionhawk';
+
+async function getFingerprint() {
+  const fingerprint = await captureFingerprint();
+  console.log(fingerprint);
+  return fingerprint;
+}</code></pre>
+
+            <h3>Advanced Options</h3>
+            <p>Exclude heavy computations if performance is a concern:</p>
+            <pre><code>// Exclude WebGL
+const fp = await captureFingerprint({ exclude: 'webgl' });
+
+// Exclude Canvas
+const fp = await captureFingerprint({ exclude: 'canvas' });</code></pre>
+
+            <h3>What is Captured?</h3>
+            <p>User Agent, Screen resolution, Timezone, Plugins, Canvas/WebGL signatures, Audio context, Hardware concurrency, Device memory, Network info.</p>
+        </section>
+
+        <section id="integration">
+            <h2>9. Complete Website Integration</h2>
+            <p>This is a production-ready implementation showing how to register fingerprints at login and validate sessions on every page load.</p>
+
+            
+
+            <h3>Part 1: Capture Fingerprint at Login</h3>
+            <pre><code>import { captureFingerprint } from 'sessionhawk';
+
+async function handleUserLogin(username, password) {
+  // 1. Authenticate user normally
+  const authSuccess = await authenticateUser(username, password);
+  if (!authSuccess) return { error: 'Invalid credentials' };
+  
+  // 2. Capture device fingerprint
+  const fingerprint = await captureFingerprint();
+  
+  // 3. Store fingerprint in SessionHawk
+  try {
+    await fetch(`http://your-server:8080/groups/main/users/${username}/fp`, {
+      method: 'POST',
+      headers: {
+        'X-API-Key': process.env.VITE_SESSIONHAWK_API_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ fingerprint })
+    });
+  } catch (error) {
+    console.error('SessionHawk registration error:', error);
+  }
+  
+  return { success: true };
+}</code></pre>
+
+            <h3>Part 2: Validate Session on Every Page Load</h3>
+            <p>Place this in your app's main layout or middleware.</p>
+            <pre><code>async function validateCurrentSession(strictnessLevel = 'medium') {
+  const username = getCurrentUser(); 
+  if (!username) return;
+
+  const fingerprint = await captureFingerprint();
+
+  try {
+    const response = await fetch('http://your-server:8080/compare', {
+      method: 'POST',
+      headers: {
+        'X-API-Key': process.env.VITE_SESSIONHAWK_API_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        group: 'main',
+        user: username,
+        fingerprint,
+        strict: strictnessLevel
+      })
+    });
+    
+    const result = await response.json();
+    
+    if (!result.verdict) {
+      alert('⚠️ Security Alert: Suspicious activity detected.');
+      await logoutUser();
+      window.location.href = '/login';
+    }
+  } catch (error) {
+    console.error('Validation error:', error);
+  }
+}</code></pre>
+
+            <h3>Part 3: Advanced Patterns</h3>
+            <p><strong>Route-Based Strictness:</strong></p>
+            <pre><code>const ROUTE_STRICTNESS = {
+  '/': 'low',
+  '/dashboard': 'medium',
+  '/admin': 'high',
+  '/payment': 'high',
+};
+
+const strictness = ROUTE_STRICTNESS[window.location.pathname] || 'medium';
+validateCurrentSession(strictness);</code></pre>
+        </section>
+
+        <section id="best-practices">
+            <h2>10. Production Best Practices</h2>
+            
+            <h3>🔒 Security</h3>
+            <ul>
+                <li>Use HTTPS (reverse proxy with nginx or Traefik).</li>
+                <li>Never expose admin API keys to frontend code.</li>
+                <li>Rotate API keys quarterly.</li>
+                <li>Enable rate limiting on your reverse proxy.</li>
+            </ul>
+
+            <h3>🏗️ Infrastructure & Backup</h3>
+            <ul>
+                <li>Run SessionHawk on a dedicated instance/container.</li>
+                <li><strong>Backup Strategy:</strong> Run a daily cron job to tarball the <code>data/</code> directory.</li>
+                <li>Monitor disk usage of the <code>./data/</code> directory.</li>
+            </ul>
+
+            <h3>Sample Backup Script</h3>
+            <pre><code>#!/bin/bash
+DATE=$(date +%Y%m%d_%H%M%S)
+tar -czf backups/sessionhawk_data_$DATE.tar.gz data/
+# Delete backups older than 30 days
+find backups/ -name "*.tar.gz" -mtime +30 -delete</code></pre>
+        </section>
+
+        <section id="cheatsheet">
+            <h2>11. Command Reference Cheat Sheet</h2>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <h4>Initial Setup</h4>
+                    <pre><code>docker pull sessionhawk/sessionhawk:latest
+docker run -d --name sessionhawk_container \
+  -p 8080:8080 -v $PWD/data:/app/data \
+  sessionhawk/sessionhawk:latest</code></pre>
+                </div>
+                <div>
+                    <h4>Safe Update</h4>
+                    <pre><code>docker stop sessionhawk_container
+docker rm sessionhawk_container
+docker pull sessionhawk/sessionhawk:latest
+# Run setup command again</code></pre>
+                </div>
+                <div>
+                    <h4>Maintenance</h4>
+                    <pre><code># Restart
+docker restart sessionhawk_container
+# Logs
+docker logs -f sessionhawk_container
+# Stats
+docker stats sessionhawk_container</code></pre>
+                </div>
+                <div>
+                    <h4>Backup</h4>
+                    <pre><code>tar -czf data-backup.tar.gz data/
+# Restore
+tar -xzf data-backup.tar.gz</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="troubleshooting">
+            <h2>12. Troubleshooting</h2>
+            
+            <details>
+                <summary style="cursor: pointer; font-weight: bold; margin-bottom: 0.5rem;">Container won't start</summary>
+                <p>Check if port 8080 is in use (<code>netstat -tuln | grep 8080</code>). If so, map a different port (e.g., <code>-p 9090:8080</code>).</p>
+            </details>
+
+            <details>
+                <summary style="cursor: pointer; font-weight: bold; margin-bottom: 0.5rem;">Data lost after update</summary>
+                <p class="text-danger">You likely forgot the volume mount flag. Always use <code>-v $PWD/data:/app/data</code>. If you didn't have a backup, the data is lost.</p>
+            </details>
+
+            <details>
+                <summary style="cursor: pointer; font-weight: bold; margin-bottom: 0.5rem;">API returns 401 Unauthorized</summary>
+                <p>Check the API key in the docker logs. Ensure the header is exactly <code>X-API-Key: sk_abc...</code> with no extra spaces.</p>
+            </details>
+
+            <details>
+                <summary style="cursor: pointer; font-weight: bold; margin-bottom: 0.5rem;">High false positive rate</summary>
+                <p>Try lowering the strictness level to "low". Consider excluding unstable signals like WebGL: <code>captureFingerprint({ exclude: 'webgl' })</code>.</p>
+            </details>
+        </section>
+
+        <footer style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center; color: #64748b;">
+            <p>SessionHawk Documentation - Happy Securing! 🛡️</p>
+        </footer>
+    </main>
+
+</body>
+</html>
